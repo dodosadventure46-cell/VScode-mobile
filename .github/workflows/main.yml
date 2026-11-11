@@ -24,12 +24,15 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Gradle & Compile Signed APK
+      - name: Setup Gradle 8.7
         uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.7'
+
       - name: Build Conflict-Free Release & Debug APK
         env:
           GITHUB_RUN_NUMBER: ${{ github.run_number }}
-        run: gradle assembleRelease assembleDebug --no-daemon
+        run: gradle assembleRelease assembleDebug --no-daemon --stacktrace
 
       - name: Upload VscodeMobileDodo APK Artifact
         uses: actions/upload-artifact@v4
