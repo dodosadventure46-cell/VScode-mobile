@@ -1,0 +1,40 @@
+name: Build VscodeMobileDodo APK
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Auto-Extract Project Zip (No Mobile Extraction Needed)
+        run: |
+          if ls *.zip 1> /dev/null 2>&1; then
+            unzip -o "*.zip" -d .
+          fi
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle & Compile Signed APK
+        uses: gradle/actions/setup-gradle@v3
+      - name: Build Conflict-Free Release & Debug APK
+        env:
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+        run: gradle assembleRelease assembleDebug --no-daemon
+
+      - name: Upload VscodeMobileDodo APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VscodeMobileDodo-APK-v2.${{ github.run_number }}
+          path: |
+            app/build/outputs/apk/release/*.apk
+            app/build/outputs/apk/debug/*.apk
